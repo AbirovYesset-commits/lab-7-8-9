@@ -1,27 +1,74 @@
 import pygame
 import random
 
-pygame.init() # Initialize PyGame.
+pygame.init()  # Инициализация Pygame
 
-WIDTH, HEIGHT = 800, 600 #Width and Height of the display.
-screen = pygame.display.set_mode((WIDTH, HEIGHT)) #Creating the display
-pygame.display.set_caption("Random Shapes") #The name of the display
+WIDTH, HEIGHT = 800, 600  # Ширина и высота окна
+screen = pygame.display.set_mode((WIDTH, HEIGHT))  # Создание окна
+pygame.display.set_caption("Random Shapes")  # Название окна
 
-WHITE = (255, 255, 255) #Background color of the display
-BLACK = (0, 0, 0) #Color of the circle
-YELLOW = (255, 255, 0) #Color of the rectangle
-BLUE = (0, 0, 255) #Color of the triangle
-RED = (255, 0, 0) #Color of the rhomb
-BROWN = (100, 40, 0) #Color of the square
+WHITE = (255, 255, 255)  # Цвет фона
+BLACK = (0, 0, 0)        # Цвет круга
+YELLOW = (255, 255, 0)   # Цвет прямоугольника
+BLUE = (0, 0, 255)       # Цвет треугольника
+RED = (255, 0, 0)        # Цвет ромба
+BROWN = (100, 40, 0)     # Цвет квадрата
 
-shapes = [] #List of the shapes
+shapes = []  # Список всех нарисованных фигур
 
+# Функция для генерации случайной позиции
 def random_position():
-    return random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50)  # Random  positions. 
+    return random.randint(50, WIDTH - 50), random.randint(50, HEIGHT - 50)
 
 running = True
 while running:
-    screen.fill(WHITE) # Background color of the display.
+    screen.fill(WHITE)  # Очистка экрана (заливка белым)
+
+    # Отрисовка всех фигур из списка
+    for shape_type, color, x, y in shapes:
+
+        if shape_type == "circle":
+            pygame.draw.circle(screen, color, (x, y), 25)
+
+        elif shape_type == "rectangle":
+            pygame.draw.rect(screen, color, (x, y, 100, 50))
+
+        elif shape_type == "triangle":
+            pygame.draw.polygon(screen, color, [(x, y), (x - 50, y + 100), (x + 50, y + 100)])
+
+        elif shape_type == "rhombus":
+            pygame.draw.polygon(screen, color, [(x, y), (x + 50, y + 50), (x, y + 100), (x - 50, y + 50)])
+
+        elif shape_type == "square":
+            pygame.draw.rect(screen, color, (x, y, 50, 50))
+
+    # Обработка событий
+    for event in pygame.event.get():
+
+        if event.type == pygame.QUIT:  # Если нажата кнопка "закрыть окно"
+            running = False  # Завершить игру
+
+        elif event.type == pygame.KEYDOWN:
+            x, y = random_position()  # Случайные координаты для новой фигуры
+
+            if event.key == pygame.K_q:  # Кнопка Q — нарисовать чёрный круг
+                shapes.append(("circle", BLACK, x, y))
+
+            elif event.key == pygame.K_w:  # Кнопка W — нарисовать жёлтый прямоугольник
+                shapes.append(("rectangle", YELLOW, x, y))
+
+            elif event.key == pygame.K_e:  # Кнопка E — нарисовать синий треугольник
+                shapes.append(("triangle", BLUE, x, y))
+
+            elif event.key == pygame.K_r:  # Кнопка R — нарисовать красный ромб
+                shapes.append(("rhombus", RED, x, y))
+
+            elif event.key == pygame.K_t:  # Кнопка T — нарисовать коричневый квадрат
+                shapes.append(("square", BROWN, x, y))
+
+    pygame.display.update()  # Обновить экран
+
+pygame.quit()  # Завершение игры
 
     for shape_type, color, x, y in shapes: # All elements of the shapes. 
         
