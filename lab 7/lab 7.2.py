@@ -1,57 +1,92 @@
-#Second exercise;
-
 import pygame
-pygame.init()
-screen = pygame.display.set_mode((1163, 535))
+import os
 
-isDone = True
-index = 0
+pygame.init()
+
+# Окно
+WIDTH, HEIGHT = 800, 300
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Музыкальный плеер")
+
+# Цвета
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+# Шрифты
+font = pygame.font.SysFont("Arial", 28)
+title_font = pygame.font.SysFont("Arial", 36, bold=True)
+
+# Звук
+pygame.mixer.init()
+
+# Плейлист
 sounds = [
-    r"C:\Users\user\Desktop\PP2\lab 7\Miyagi - Captain.mp3",
-    r"C:\Users\user\Desktop\PP2\lab 7\MiyaGi & Эндшпиль - Fire Man.mp3",
-    r"C:\Users\user\Desktop\PP2\lab 7\Виктор Цой - Группа крови.mp3"
+    "SMOKEDOPE2016 - IM NOT GOD BUT I WISH I WAS ft. JOEYY (prod. SIKA).mp3",
+    "In Da Party.mp3",
+    "Dope Love.mp3"
 ]
 
-color = (255, 255, 255)
+# Проверим, что файлы есть
+print("Файлы в папке:", os.listdir())
 
+index = 0
 isPaused = False
-isPlayed = True
-while isDone:
-    screen.fill(color)
-    pygame.display.update()
-    for event in pygame.event.get():
+isPlayed = False
+running = True
 
-        if event.type == pygame.QUIT:
-            isDone = False
+def draw_screen():
+    screen.fill(WHITE)
+    
+    # Название трека
+    title = title_font.render("Текущий трек:", True, BLACK)
+    screen.blit(title, (30, 30))
+    
+    track = font.render(sounds[index], True, BLACK)
+    screen.blit(track, (30, 80))
 
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-            if index == len(sounds) - 1:
-                index = 0
-            else:
-                index += 1
-            isPaused = False
-            isPlayed = True
-
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-            if index == 0:
-                index = len(sounds) - 1
-            else:
-                index -= 1
-            isPaused = False
-            isPlayed = True
-
-        if event.type == pygame.KEYDOWN and isPlayed:
-            if isPaused:
-                pygame.mixer.music.unpause()
-                isPaused = not isPaused
-            else:
-                pygame.mixer.music.load(sounds[index])
-                pygame.mixer.music.play(2)
-            isPlayed = not isPlayed
-
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and not isPlayed:
-            pygame.mixer.music.pause()
-            isPlayed = not isPlayed
-            isPaused = not isPaused
+    # Подсказки по клавишам
+    help_text = font.render("← Назад  |  → Вперед  |  Пробел — Пауза/Продолжить", True, BLACK)
+    screen.blit(help_text, (30, HEIGHT - 50))
 
     pygame.display.flip()
+
+while running:
+    draw_screen()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        elif event.type == pygame.KEYDOWN:
+
+            # Влево ←
+            if event.key == pygame.K_LEFT:
+                index = (index - 1) % len(sounds)
+                pygame.mixer.music.load(sounds[index])
+                pygame.mixer.music.play()
+                isPaused = False
+                isPlayed = True
+
+            # Вправо →
+            elif event.key == pygame.K_RIGHT:
+                index = (index + 1) % len(sounds)
+                pygame.mixer.music.load(sounds[index])
+                pygame.mixer.music.play()
+                isPaused = False
+                isPlayed = True
+
+            # Пробел — пауза/возобновление
+            elif event.key == pygame.K_SPACE:
+                if isPlayed and not isPaused:
+                    pygame.mixer.music.pause()
+                    isPaused = True
+                elif isPlayed and isPaused:
+                    pygame.mixer.music.unpause()
+                    isPaused = False
+                else:
+                    pygame.mixer.music.load(sounds[index])
+                    pygame.mixer.music.play()
+                    isPlayed = True
+                    isPaused = False
+
+pygame.quit()
