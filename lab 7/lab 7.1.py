@@ -1,52 +1,56 @@
-#first exercises: Create a simple clock application (only with minutes and seconds) which is synchronized with system clock. 
-# Use Mickey's right hand as minutes arrow and left - as seconds. 
-# For moving Mickey's hands you can use: pygame.transform.rotate more explanation.
-
-
 import pygame
-import datetime 
+import datetime
 
 pygame.init()
 WIDTH, HEIGHT = 1100, 920
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Mickey's clock")
 
-clock_img = pygame.image.load(r"C:\Users\user\Desktop\PP2\lab 7\clock.png")
+# Загрузка изображений
+clock_img = pygame.image.load("clock.png")
 clock_face = pygame.transform.scale(clock_img, (WIDTH, HEIGHT))
-hand_right = pygame.image.load(r"C:\Users\user\Desktop\PP2\lab 7\rightarm.png")
-hand_left = pygame.image.load(r"C:\Users\user\Desktop\PP2\lab 7\leftarm.png")
-leftArmSecondImage = pygame.transform.scale(hand_left, (20, hand_left.get_height() // 2.5-30))
-RightArmSecondImage = pygame.transform.scale(hand_right, (hand_left.get_width() // 3, hand_left.get_height() // 3))
-
+hand_right = pygame.image.load("rightarm.png")  # Минутная стрелка
+hand_left = pygame.image.load("leftarm.png")    # Секундная стрелка
 
 WHITE = (255, 255, 255)
 clock = pygame.time.Clock()
-running = True 
+running = True
 
-while running: 
+# Смещение угла — если стрелки изначально направлены вправо
+OFFSET = 90  # Если нужно, можешь поменять на -90, 180 и т.д., в зависимости от картинки
+
+while running:
     screen.fill(WHITE)
     screen.blit(clock_face, (0, 0))
+
+    # Получение текущего времени
     now = datetime.datetime.now()
-    seconds = now.second
-    minutes = now.minute
-    minute_angle = - (minutes * 6)  
-    second_angle = - (seconds * 6)   
-    
+    seconds = now.second + now.microsecond / 1_000_000
+    minutes = now.minute + seconds / 60
+
+    # Расчёт углов с учётом смещения
+    minute_angle = - (minutes * 6) - OFFSET
+    second_angle = - (seconds * 6) - OFFSET
+
+    # Поворот стрелок
     rotated_right_hand = pygame.transform.rotate(hand_right, minute_angle)
     rotated_left_hand = pygame.transform.rotate(hand_left, second_angle)
-    
+
+    # Центровка
     rh_rect = rotated_right_hand.get_rect(center=(WIDTH // 2, HEIGHT // 2))
     lh_rect = rotated_left_hand.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-    
+
+    # Отображение стрелок
     screen.blit(rotated_right_hand, rh_rect.topleft)
     screen.blit(rotated_left_hand, lh_rect.topleft)
-    
+
     pygame.display.update()
-    
-    for event in pygame.event.get(): 
-        if event.type == pygame.QUIT: 
+
+    # Обработка закрытия окна
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
             running = False
-            
+
     clock.tick(60)
 
 pygame.quit()
